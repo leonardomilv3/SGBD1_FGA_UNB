@@ -1,0 +1,193 @@
+-- -------- << TF_scripts_2 >> ------------------------------------
+--
+-- 		SCRIPT DE CRIAR (DDL)
+--
+-- Data Criacao ...........: 25/01/23
+-- Autor(es) ..............: Leonardo Vitoriano e Guilherme Meneses
+-- Banco de Dados .........: MySQL 8.0
+-- Banco de Dados(nome) ...: TF_scripts_2
+--
+-- PROJETO => 01 Base de Dados
+--         => 17 Tabelas
+-- -----------------------------------------------------------------
+
+CREATE DATABASE IF NOT EXISTS tf2_scripts_2;
+
+CREATE TABLE APICULTOR(
+	idApicultor INT NOT NULL AUTO_INCREMENT,
+    nomeApicultor VARCHAR(120) NOT NULL,
+    cpfApicultor VARCHAR(15) NOT NULL,
+    telefoneApicultor VARCHAR(20) NOT NULL,
+    qtdTotalApiario INT NOT NULL,
+    nomeSindicato VARCHAR(100),
+
+    CONSTRAINT APICULTOR_PK PRIMARY KEY(idApicultor),
+    CONSTRAINT APICULTOR_PK UNIQUE(cpfApicultor)
+) Engine = InnoDB AUTO_INCREMENT=1;
+
+CREATE TABLE ENXAME (
+    idEnxame INT NOT NULL AUTO_INCREMENT,
+    idadeRainha ENUM('jovem', 'velha') NOT NULL,
+    populacao ENUM('pequena', 'grande') NOT NULL,
+
+    CONSTRAINT ENXAME_PK PRIMARY KEY(idEnxame)
+) Engine = InnoDB AUTO_INCREMENT=1;
+
+CREATE TABLE APIARIO (
+    idApiario INT NOT NULL AUTO_INCREMENT,
+    idApicultor INT NOT NULL,
+    idEnxame INT NOT NULL,
+
+    CONSTRAINT APIARIO_PK PRIMARY KEY(idApiario),
+    CONSTRAINT APIARIO_APICULTOR_FK FOREIGN KEY(idApicultor) REFERENCES APICULTOR(idApicultor),
+    CONSTRAINT APIARIO_ENXAME_FK FOREIGN KEY(idEnxame) REFERENCES ENXAME(idEnxame) ON DELETE CASCADE
+) Engine = InnoDB AUTO_INCREMENT=1;
+
+CREATE TABLE GEOLOCALIZADOR (
+    idGeolocalizador INT NOT NULL AUTO_INCREMENT, 
+    idApiario INT NOT NULL,
+    latitude DECIMAL(10,10) NOT NULL,
+    longitude DECIMAL(10,10) NOT NULL,
+
+    CONSTRAINT GEOLOCALIZADOR_PK PRIMARY KEY(idGeolocalizador),
+    CONSTRAINT GEOLOCALIZADOR_APIARIO_FK FOREIGN KEY(idApiario) REFERENCES APIARIO(idApiario) ON DELETE CASCADE
+) Engine = InnoDB AUTO_INCREMENT=1;
+
+CREATE TABLE CURSO (
+    idCurso INT NOT NULL AUTO_INCREMENT,
+    nomeCurso VARCHAR(120) NOT NULL,
+    descricaoCurso VARCHAR(200) NOT NULL,
+
+    CONSTRAINT CURSO_PK PRIMARY KEY(idCurso)
+) Engine = InnoDB AUTO_INCREMENT=1;
+
+CREATE TABLE tem (
+    idApicultor INT NOT NULL,
+    idCurso INT NOT NULL,
+
+    CONSTRAINT tem_APICULTOR_FK FOREIGN KEY(idApicultor) REFERENCES APICULTOR(idApicultor),
+    CONSTRAINT tem_CURSO_FK FOREIGN KEY(idCurso) REFERENCES CURSO(idCurso)
+) Engine = InnoDB AUTO_INCREMENT=1;
+
+CREATE TABLE CLIENTE (
+    idCliente INT NOT NULL AUTO_INCREMENT,
+    nomeCliente VARCHAR(150) NOT NULL,
+    cpf VARCHAR(15) NOT NULL,
+    cnpj VARCHAR(20),
+
+    CONSTRAINT CLIENTE_PK PRIMARY KEY(idCliente),
+    CONSTRAINT CLIENTE_UK UNIQUE(cpf, cnpj)
+
+) Engine = InnoDB AUTO_INCREMENT=1;
+
+CREATE TABLE PROPRIEDADE (
+    idPropriedade INT NOT NULL AUTO_INCREMENT,
+    idDono INT NOT NULL,
+    qtdApiario DECIMAL(5) NOT NULL,
+
+    CONSTRAINT PROPRIEDADE_PK PRIMARY KEY(idPropriedade),
+    CONSTRAINT PROPRIEDADE_CLIENTE_FK FOREIGN KEY(idDono) REFERENCES CLIENTE(idCliente)
+) Engine = InnoDB AUTO_INCREMENT=1;
+
+CREATE TABLE ENDERECO (
+    idEndereco INT NOT NULL AUTO_INCREMENT,
+    cep VARCHAR(12) NOT NULL,
+    cidade VARCHAR(120) NOT NULL,
+    estado VARCHAR(120) NOT NULL,
+    bairro VARCHAR(120) NOT NULL,
+    numEndereco DECIMAL(5) NOT NULL,
+    idApicultor INT,
+    idPropriedade INT,
+    complemento VARCHAR(200),
+
+    CONSTRAINT ENDERECO_PK PRIMARY KEY(idEndereco),
+    CONSTRAINT ENDERECO_APICULTOR_FK FOREIGN KEY(idApicultor) REFERENCES APICULTOR(idApicultor),
+    CONSTRAINT ENDERECO_PROPRIEDADE_FK FOREIGN KEY(idPropriedade) REFERENCES PROPRIEDADE(idPropriedade)
+) Engine = InnoDB AUTO_INCREMENT=1;
+
+CREATE TABLE nomePlanta (
+    idPropriedade INT NOT NULL,
+    nomePlanta VARCHAR(100) NOT NULL,
+
+    CONSTRAINT nomePlanta_PROPRIEDADE_FK FOREIGN KEY(idPropriedade) REFERENCES PROPRIEDADE(idPropriedade)
+) Engine = InnoDB AUTO_INCREMENT=1;
+
+CREATE TABLE ALUGUEL (
+    idAluguel INT NOT NULL AUTO_INCREMENT,
+    idApicultor INT NOT NULL,
+    idCliente INT NOT NULL,
+
+    CONSTRAINT ALUGUEL_PK PRIMARY KEY(idAluguel),
+    CONSTRAINT ALUGUEL_APICULTOR_FK FOREIGN KEY(idCliente) REFERENCES CLIENTE(idCliente),
+    CONSTRAINT ALUGUEL_CLIENTE_FK FOREIGN KEY(idCliente) REFERENCES CLIENTE(idCliente)
+) Engine = InnoDB AUTO_INCREMENT=1;
+
+CREATE TABLE CONTRATO (
+    idContrato INT NOT NULL AUTO_INCREMENT,
+    idCliente INT NOT NULL, 
+    idApicultor INT NOT NULL,
+    idPropriedadeCliente INT NOT NULL,
+    idAluguel INT NOT NULL,
+    nomePlantaPolenizada VARCHAR(150) NOT NULL,
+    tempoAluguel INT NOT NULL,
+    qtdApiario DECIMAL(5) NOT NULL,
+    valorContrato DECIMAL(10,2) NOT NULL,
+
+    CONSTRAINT CONTRATO_PK PRIMARY KEY(idContrato),
+    CONSTRAINT CONTRATO_CLIENTE_FK FOREIGN KEY(idCliente) REFERENCES CLIENTE(idCliente),
+    CONSTRAINT CONTRATO_APICULTOR_FK FOREIGN KEY(idApicultor) REFERENCES APICULTOR(idApicultor),
+    CONSTRAINT CONTRATO_PROPRIEDADE_FK FOREIGN KEY(idPropriedadeCliente) REFERENCES PROPRIEDADE(idPropriedade)
+) Engine = InnoDB AUTO_INCREMENT=1;
+
+CREATE TABLE diaAplicacaoAgrotoxico (
+    idContrato INT NOT NULL,
+    diaAplicacaoAgrotoxico DATE NOT NULL,
+
+    CONSTRAINT diaAplicacaoAgrotoxico_CONTRATO_FK FOREIGN KEY(idContrato)
+    REFERENCES CONTRATO(idContrato)
+) Engine = InnoDB AUTO_INCREMENT=1;
+
+CREATE TABLE CONSULTOR (
+    idConsultor INT NOT NULL AUTO_INCREMENT,
+    nomeConsultor VARCHAR(150) NOT NULL,
+    telefoneConsultor DECIMAL(15) NOT NULL,
+    cpfConsultor DECIMAL(15) NOT NULL,
+    nomeSindicato VARCHAR(150),
+
+    CONSTRAINT CONSULTOR_PK PRIMARY KEY(idConsultor),
+    CONSTRAINT CONSULTOR_UK UNIQUE(cpfConsultor)
+) Engine = InnoDB AUTO_INCREMENT=1;
+
+CREATE TABLE EQUIPE (
+    idEquipe INT NOT NULL AUTO_INCREMENT,
+    idApicultor INT NOT NULL,
+    
+    CONSTRAINT EQUIPE_PK PRIMARY KEY(idEquipe),
+    CONSTRAINT EQUIPE_APICULTOR_FK FOREIGN KEY(idApicultor) REFERENCES APICULTOR(idApicultor)
+) Engine = InnoDB AUTO_INCREMENT=1;
+
+CREATE TABLE compoe (
+    idConsultor INT NOT NULL,
+    idEquipe INT NOT NULL,
+    
+    CONSTRAINT compoe_CONSULTOR_FK FOREIGN KEY(idConsultor)
+    REFERENCES CONSULTOR(idConsultor),
+    CONSTRAINT compoe_EQUIPE_FK FOREIGN KEY(idEquipe)
+    REFERENCES EQUIPE(idEquipe)
+) Engine = InnoDB AUTO_INCREMENT=1;
+
+
+CREATE TABLE CONSULTORIA (
+    idConsultoria INT NOT NULL AUTO_INCREMENT,
+    idPropriedadeCliente INT NOT NULL,
+    idEquipe INT NOT NULL,
+    idCliente INT NOT NULL,
+    idContrato INT NOT NULL,
+    dataHoraConsultoria DATETIME NOT NULL,
+
+    CONSTRAINT CONSULTORIA_PK PRIMARY KEY(idConsultoria),
+	CONSTRAINT CONSULTORIA_PROPRIEDADE_FK FOREIGN KEY(idPropriedadeCliente) REFERENCES PROPRIEDADE(idPropriedade),
+    CONSTRAINT CONSULTORIA_EQUIPE_FK FOREIGN KEY(idEquipe) REFERENCES EQUIPE(idEquipe),
+    CONSTRAINT CONSULTORIA_CLIENTE_FK FOREIGN KEY(idCliente) REFERENCES CLIENTE(idCliente),
+    CONSTRAINT CONSULTORIA_CONTRATO_FK FOREIGN KEY(idContrato) REFERENCES CONTRATO(idContrato)
+) Engine = InnoDB AUTO_INCREMENT=1;
