@@ -16,7 +16,7 @@ CREATE DATABASE IF NOT EXISTS tf2_scripts_2;
 CREATE TABLE APICULTOR(
 	idApicultor INT NOT NULL AUTO_INCREMENT,
     nomeApicultor VARCHAR(120) NOT NULL,
-    cpfApicultor VARCHAR(15) NOT NULL,
+    cpfApicultor BIGINT NOT NULL,
     telefoneApicultor VARCHAR(20) NOT NULL,
     qtdTotalApiario INT NOT NULL,
     nomeSindicato VARCHAR(100),
@@ -72,7 +72,7 @@ CREATE TABLE tem (
 CREATE TABLE CLIENTE (
     idCliente INT NOT NULL AUTO_INCREMENT,
     nomeCliente VARCHAR(150) NOT NULL,
-    cpf VARCHAR(15) NOT NULL,
+    cpf BIGINT NOT NULL,
     cnpj VARCHAR(20),
 
     CONSTRAINT CLIENTE_PK PRIMARY KEY(idCliente),
@@ -151,7 +151,7 @@ CREATE TABLE CONSULTOR (
     idConsultor INT NOT NULL AUTO_INCREMENT,
     nomeConsultor VARCHAR(150) NOT NULL,
     telefoneConsultor DECIMAL(15) NOT NULL,
-    cpfConsultor DECIMAL(15) NOT NULL,
+    cpfConsultor BIGINT NOT NULL,
     nomeSindicato VARCHAR(150),
 
     CONSTRAINT CONSULTOR_PK PRIMARY KEY(idConsultor),
